@@ -24,15 +24,16 @@ if ($admin != 1) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>point of Sale</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         /*h4{color:red; font-family:'Courier New', Courier, monospace; text-decoration:underline;}*/
     </style>
 </head>
 
 <body>
-
+<?php include('nav.php') ?>
     <div class="container mt-4">
-        <?php include('nav.php') ?>
+        
         <div class="row">
             <div class="col-md-12">
                 <h2>Transaction History</h2>
@@ -78,7 +79,7 @@ if ($admin != 1) {
                                     </select>
                                 </div>
                                 <div class="col-md-2"><br>
-                                    <button type="submit" class="btn btn-primary" name="SearchTransaction">Search Transaction</button>
+                                    <button type="submit" class="btn btn-primary" name="SearchTransaction"><i class='bx bx-search'></i> <span>Search Transaction</span></button>
                                 </div>
                             </div>
                         </div>
@@ -137,7 +138,7 @@ if ($admin != 1) {
                                     <td><?= $row['mode'] ?></td>
                                     <td><?= substr($row['created'], 0, 10) ?></td>
                                     <td><?= $sales->User($row['user']) ?></td>
-                                    <td><a class="btn btn-sm btn-info" href="receipt.php?salesid=<?= $row['salesid'] ?>">Receipt</a></td>
+                                    <td><a class="btn btn-sm btn-info" href="receipt.php?salesid=<?= $row['salesid'] ?>"><i class='bx bxs-receipt' style="color: #ffff;" ></i></a></td>
                                 </tr>
                             <?php } ?>
                             <tr>

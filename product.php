@@ -37,6 +37,7 @@ if (isset($_GET['edit'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 
 <body>
@@ -56,8 +57,8 @@ if (isset($_GET['edit'])) {
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
                     Add product
                 </button>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticFrontdrop">
-                    Search
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticFrontdrop"><i class='bx bx-search' ></i> <span>Search</span>
+                    
                 </button>
             </div>
         </div>
@@ -187,7 +188,7 @@ if (isset($_GET['edit'])) {
                                     }
                                      ?>><?php stock($row['qty']) ?></td>
                                     <td><?= substr($row['created'], 0, 10) ?></td>
-                                    <td><a href="" class="btn btn-sm btn-primary">Edit</a></td>
+                                    <td><a href="" class="btn btn-sm btn-primary"><i class='bx bxs-message-square-edit'></i></a></td>
 
                                 </tr>
                             <?php } ?>

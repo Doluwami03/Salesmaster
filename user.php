@@ -20,14 +20,15 @@ if($admin!=1){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Sales Agents</title>
     <link href="css/bootstrap.min.css" rel="stylesheet" >
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         a{text-decoration: none;}
     </style>
 </head>
 <body>
-
-<div class="container mt-4">
 <?php include('nav.php') ?>
+<div class="container mt-4">
+
     <div class="row">
         <div class="col-md-12">
             <h2>Manage Sales Agents</h2>

@@ -68,7 +68,7 @@ if (!isset($_SESSION['user'])) {
                     <div class="card-footer">
                         <div class="form-group">
                             <div style="float:right">
-                                <button type="submit" class="btn btn-primary btn-block" name="AddItem">Add Item to Cart</button>
+                                <button type="submit" class="btn btn-primary btn-block" name="AddItem"><span>Add Item to Cart</span> <i class='bx bxs-cart-add'></i></button>
                             </div>
                         </div>
 
@@ -84,7 +84,7 @@ if (!isset($_SESSION['user'])) {
                             <div class="row">
                                 <div class="col-md-6">
                                     <div>
-                                        <h3>Cart</h3>
+                                        <h3><span>Cart</span> <i class='bx bx-cart-alt'></i> </h3>
                                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"><?= $sales->sqL1('item', 'salesid', $salesid); ?>
                                             <span class="visually-hidden">New alerts</span>
                                         </span>
@@ -116,10 +116,10 @@ if (!isset($_SESSION['user'])) {
                                 ?>
                             </table>
                             <?php $sql = $db->query("SELECT * FROM item WHERE bid='$bid' AND salesid='$salesid' AND status=0");
-                                while ($row = $sql->fetch_assoc()) {
-                
-                                    echo ' <a href="?restore=' . $row['sn'] .  '">' . $row['item'] .  '</a> | ';
-                                }
+                            while ($row = $sql->fetch_assoc()) {
+
+                                echo ' <a href="?restore=' . $row['sn'] .  '">' . $row['item'] .  '</a> | ';
+                            }
                             ?>
                             <input type="hidden" name="total" value="<?= $total ?>">
                             <br>
@@ -208,9 +208,9 @@ if (!isset($_SESSION['user'])) {
                                     <td><strike>N</strike><?= number_format($row['total']) ?></td>
                                     <td><?= $row['mode'] ?></td>
                                     <td><?= substr($row['created'], 0, 10) ?></td>
-                                    <td><a class="btn btn-sm btn-info" href="receipt.php?salesid=<?= $row['salesid'] ?>">Receipt</a>
+                                    <td><a class="btn btn-sm btn-info" data-bs-toggle="tooltip" data-bs-title="Edit Transaction" href="receipt.php?salesid=<?= $row['salesid'] ?>"><i class='bx bxs-receipt' style="color: #ffff;"></i></a>
 
-                                        <?php if ($e == 1 && substr($row['created'], 0, 10) == date('Y-m-d')) { ?><a style="margin-left: 10px" href="?edit=<?= $row['sn'] ?>&salesid=<?= $row['salesid'] ?>" class="btn btn-sm btn-primary">Edit</a><?php } ?></td>
+                                        <?php if ($e == 1 && substr($row['created'], 0, 10) == date('Y-m-d')) { ?><a style="margin-left: 10px" href="?edit=<?= $row['sn'] ?>&salesid=<?= $row['salesid'] ?>" class="btn btn-sm btn-primary"><i class='bx bxs-message-square-edit'></i></a><?php } ?></td>
                                 </tr>
                             <?php } ?>
                         </table>
@@ -228,14 +228,21 @@ if (!isset($_SESSION['user'])) {
 
         <script src="https://js.paystack.co/v1/inline.js"></script>
 
-
+        <script src="https://cdn.jsdelivr.net/npm/@floating-ui/core@1.6.3"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.6"></script>
+        
         <script>
+
+
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
             let emptyCart = document.getElementById("empty-cart");
             let cartItems = document.getElementById("cart-items");
 
             if (window.history.replaceState) {
-            window.history.replaceState(null, null, window.location.href);
-        }
+                window.history.replaceState(null, null, window.location.href);
+            }
 
             let emptyAction = () => {
                 // Assuming you might want to confirm before emptying the cart
