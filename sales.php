@@ -26,6 +26,8 @@ if (!isset($_SESSION['user'])) {
             text-decoration: none !important;
         }
     </style>
+
+
 </head>
 
 <body>
@@ -48,12 +50,21 @@ if (!isset($_SESSION['user'])) {
                     </div>
                     <div class="card-body">
                         <form method="post">
-                            <div class="form-group">
-                                <label for="">Item</label>
-                                <input type="text" class="form-control" name="item" placeholder="Item name">
-                            </div>
+                    
+                        <label for="">Items</label>
+                        <select class="form-control" name="item"  id="product" onchange="fetchPrice()">
+                         
+                        <option value="">Items</option>
+                                <?php $sql = $db->query("SELECT * FROM product");
+                                        while ($row = mysqli_fetch_assoc($sql)) { ?>
+                                            <option value="<?= $row['sn'] ?>"><?= ($row['item']) ?></option>
+                                        <?php } ?>
+                        </select>
+
+
                             <div class="form-group">
                                 <label for="">price</label>
+                                
                                 <input type="number" class="form-control" id="price" name="price" onkeyup="document.getElementById('amount').value = this.value * document.getElementById('qty').value;" placeholder="Enter price" required>
                             </div>
                             <div class="form-group">
@@ -84,7 +95,7 @@ if (!isset($_SESSION['user'])) {
                             <div class="row">
                                 <div class="col-md-6">
                                     <div>
-                                        <h3><span>Cart</span> <i class='bx bx-cart-alt'></i> </h3>
+                                        <h3><i class='bx bx-cart-alt'></i><span>Cart</span></h3>
                                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"><?= $sales->sqL1('item', 'salesid', $salesid); ?>
                                             <span class="visually-hidden">New alerts</span>
                                         </span>
@@ -106,13 +117,14 @@ if (!isset($_SESSION['user'])) {
                                 </tr>
 
                                 <?php $total  = 0;
+                                global $grand;
                                 $sql = $db->query("SELECT * FROM item WHERE bid='$bid' AND salesid='$salesid' AND status=1");
                                 while ($row = $sql->fetch_assoc()) {
                                     $total += $row["amount"];
                                     $delete  = 'href="?delete=' . $row["sn"] . '"';
-                                    echo "<tr><td>" . $row["qty"] . "</td><td>" . $row["item"] . "</td><td>" . number_format($row["price"]) . "</td><td>" . number_format($row["amount"]) . "</td><td><a " . $delete . ">Remove</a></td></tr>";
+                                    echo "<tr><td>" . $row["qty"] . "</td><td>" . $row["item"] . "</td><td>" . number_format($row["price"]) . "</td><td>" . $row["amount"] . "</td><td><a " . $delete . ">Remove</a></td></tr>";
                                 }
-                                echo '<tr><th colspan="3">Grand Total</th><th>' . number_format($total) . '</th><th></th></tr>';
+                                echo '<tr><th colspan="3">Total</th><th>' . number_format($total) . '</th><th></th></tr><tr><th colspan="3">Discount</th><th id="demo"></th><th></th></tr><tr><th colspan="3">Grand Total</th><th id="grand"></th><th></th></tr>';
                                 ?>
                             </table>
                             <?php $sql = $db->query("SELECT * FROM item WHERE bid='$bid' AND salesid='$salesid' AND status=0");
@@ -121,8 +133,19 @@ if (!isset($_SESSION['user'])) {
                                 echo ' <a href="?restore=' . $row['sn'] .  '">' . $row['item'] .  '</a> | ';
                             }
                             ?>
-                            <input type="hidden" name="total" value="<?= $total ?>">
+                            <input type="hidden" name="total" id="total" value="<?= $total ?>">
+                            <input type="hidden" name="mydiscount" id="mydisc" >
+
                             <br>
+                            <label for="">Discount Type</label>
+                            <select class="form-control" id="discount-type" name="discount-type" onchange="updateDiscount()">
+                                <option value="">Select Option...</option>
+                                <option value="percent">Percent</option>
+                                <option value="amount">Amount</option>
+                            </select><br>
+                            <label for="">Discount</label>
+                            <input type="number" id="discount" class="form-control" name="discount" onkeyup="updateDiscount()"><br>
+
                             <label for="">Mode of Payment</label>
                             <select class="form-control" name="mode">
                                 <option value="">Select Option...</option>
@@ -219,8 +242,9 @@ if (!isset($_SESSION['user'])) {
                 </div>
             </div>
         </div>
+        </div>
 
-
+        <?php include('footer.php') ?>
 
         <script src="js/bootstrap.bundle.min.js"></script>
 
@@ -230,12 +254,52 @@ if (!isset($_SESSION['user'])) {
 
         <script src="https://cdn.jsdelivr.net/npm/@floating-ui/core@1.6.3"></script>
         <script src="https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.6"></script>
-        
+
+        <!-- Discount script -->
         <script>
+            function updateDiscount() {
+                let discountValue = document.getElementById('discount').value;
+                let totalValue = document.getElementById('total').value;
+                let discountType = document.getElementById('discount-type').value;
+                let discountAmount;
 
+                if (discountType === 'percent') {
+                    if (discountValue > 100) {
+                        alert('Percentage discount cannot be more than 100%');
+                        document.getElementById('discount').value = 0;
+                        discountValue = 0;
+                    }
+                    discountAmount = (totalValue * discountValue) / 100;
+                } else if (discountType === 'amount') {
+                    if (discountValue > totalValue) {
+                        // alert('Discount amount cannot be more than total');
+                        // document.getElementById('discount').value = 0;
+                        // discountValue = 0;
+                    }
+                    discountAmount = discountValue;
+                } else {
+                    discountAmount = 0;
+                    document.getElementById('discount').value = 0;
+                    discountValue = 0;
+                }
 
+                document.getElementById("demo").innerHTML = discountAmount;
+                let grandTotal = totalValue - discountAmount;
+                document.getElementById("grand").innerHTML = grandTotal; 
+                document.getElementById('mydisc').value = discountAmount;      
+
+                console.log('Total:', totalValue);
+                console.log('Discount:', discountValue);
+                console.log('Grand Total:', grandTotal);
+            }
+        </script>
+        <script>
             const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
             const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+            if (window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.href);
+            }
 
             let emptyCart = document.getElementById("empty-cart");
             let cartItems = document.getElementById("cart-items");

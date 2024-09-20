@@ -6,6 +6,8 @@ define("DB_NAME", "salesmaster");
 
 $db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
+include('function.php');
+
 if (isset($_GET['logout'])) {
     session_destroy();
     header('location: login.php');
@@ -16,11 +18,14 @@ if (!isset($_SESSION["salesid"])) {
     $_SESSION["salesid"] = rand();
 }
 
-if (!isset($_SESSION["productid"])) {
-    $_SESSION["productid"] = rand();
+function selectSn($sn){
+    global $db;
+    $sql = $db->query("SELECT * FROM product WHERE sn = '$sn'");
+    $row = mysqli_fetch_assoc($sql);
+    return $row['item'];
 }
 
-$productid = $_SESSION["productid"];
+// $productid = $_SESSION["productid"];
 
 $user = $_SESSION['user'] ?? '';
 $salesid = $_SESSION["salesid"];
@@ -119,6 +124,9 @@ class Salesmaster
         if (array_key_exists("AddProduct", $_POST)) {
             $this->AddProduct();
         }
+        if (array_key_exists("AddCategories", $_POST)) {
+            $this->AddCategories();
+        } 
         if (isset($_GET["restore"])) {
             $this->restore();
         }
@@ -131,11 +139,16 @@ class Salesmaster
     // AddItem Method
 
     function AddItem()
+
     {
         global $db, $salesid, $user, $bid;
-
-        extract($_POST);
-
+        if (isset ($_POST['item'],$_POST['price'],$_POST['qty'],$_POST['amount'])) 
+        {
+            $item = $_POST['item'];
+            $price = $_POST['price'];
+            $qty = $_POST['qty'];
+            $amount = $_POST['amount'];
+        }
         $sql =  $db->query("INSERT INTO item (item,price,qty,amount,salesid,user,bid) VALUES ('$item','$price','$qty','$amount','$salesid','$user','$bid') ");
         if ($sql) {
             Alert('Successfully Added to cart');
@@ -144,6 +157,15 @@ class Salesmaster
         }
         return;
     }
+
+    function sqLx($table,$col1,$val1,$col)
+	{
+		global $db;
+	$sql=$db->query("SELECT * FROM $table WHERE $col1='$val1' " )or die(mysqli_error($db));	
+        if(mysqli_num_rows($sql)==0){return ''; }
+		$row = mysqli_fetch_assoc($sql); 
+		return $row[$col];
+	}
 
     // Checkout Method
 
@@ -155,7 +177,7 @@ class Salesmaster
         if ($total == 0) {
             header('location: ?');
         }
-        $sql =  $db->query("INSERT INTO sales (customer,phone,total,salesid,user,mode,bid) VALUES ('$customer','$phone','$total','$salesid','$user','$mode','$bid') ");
+        $sql =  $db->query("INSERT INTO sales (customer,phone,total,discount,salesid,user,mode,bid) VALUES ('$customer','$phone','$total','$mydiscount','$salesid','$user','$mode','$bid') ");
         $db->query("UPDATE item SET status=2 WHERE salesid='$salesid' AND status=1");
         $sq = $db->query("SELECT * FROM customer WHERE bid='$bid' AND phone = '$phone' ");
         if (mysqli_num_rows($sq) == 0) {
@@ -164,7 +186,7 @@ class Salesmaster
         }
 
         if ($sql) {
-            Alert('Successfully Submitted');;
+            Alert('Successfully Submitted');
             unset($_SESSION['salesid']);
             $salesid = '';
         } else {
@@ -172,12 +194,13 @@ class Salesmaster
         }
         return;
     }
+    
 
     function AddProduct(){
         global $db, $productid;
         extract($_POST);
 
-        $sql =  $db->query("INSERT INTO product (item,productid,qty,cost,sp) VALUES ('$item','$productid','$qty','$cost','$sp')");
+        $sql =  $db->query("INSERT INTO product (category,item,productid,qty,cost,sp) VALUES ('$category','$item','$productid','$qty','$cost','$sp')");
     
         if ($sql) {
             Alert('Successfully Added to Store');
@@ -187,6 +210,49 @@ class Salesmaster
             Alert('Error Submitting data', 0);
         }
     }
+     
+    // AddCategories
+    // function AddCategories(){
+    //     global $db, $description;
+    //     extract($_POST);
+
+    //     $sql =  $db->query("INSERT INTO categories (title,description) VALUES ('$title','$description')");
+        
+    //     if ($sql) {
+    //         Alert('Successfully Added to Categories');
+
+    //     } else {
+    //         Alert('Error Submitting data', 0);
+    //     }
+      
+    //     }
+
+    function AddCategories() {
+        global $db, $description;
+        extract($_POST);
+    
+        $sql = $db->query("INSERT INTO categories (title,description) VALUES ('$title','$description')");
+    
+        if ($sql) {
+            Alert('Successfully Added to Categories');
+        } else {
+            Alert('Error Submitting data', 0);
+        }
+    }
+    
+    function DeleteCategories($sn) {
+        global $db;
+    
+        $sql = $db->query("DELETE FROM categories WHERE sn = '$sn'");
+    
+        if ($sql) {
+            Alert('Successfully Deleted Category');
+        } else {
+            Alert('Error Deleting Category', 0);
+        }
+    }
+    
+    
 
     // clearAll Method
 
@@ -275,7 +341,7 @@ class Salesmaster
         if (mysqli_num_rows($sql) == 1) {
             $row = mysqli_fetch_assoc($sql);
             $_SESSION['user'] = $row['sn'];
-            header('location: sales.php');
+            header('location: index.php');
             exit;
         } else {
             Alert('Error Submitting data', 0);
@@ -332,8 +398,8 @@ class Salesmaster
         return;
     }
 
-
 }
+
 
 $sales = new Salesmaster;
 

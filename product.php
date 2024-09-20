@@ -27,6 +27,7 @@ if (isset($_GET['edit'])) {
     return;
 }
 
+
 ?>
 
 <!DOCTYPE html>
@@ -42,16 +43,30 @@ if (isset($_GET['edit'])) {
 
 <body>
 
-    <?php include('nav.php') ?>
+    <?php include('nav2.php') ?>
 
-
-
-
+    
     <div class="container mt-4">
-
+    <div class="app-content-header"> <!--begin::Container-->   
+<div class="container-fluid"> <!--begin::Row-->
+                <div class="row">
+                        <div class="col-sm-6">
+                        <h2 class="mb-0">Store</h2>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-end">
+                                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    Dashboard
+                                </li>
+                            </ol>
+                        </div>
+                    </div> <!--end::Row-->
+</div> <!--end::Container-->
+</div> <!--end::App Content Header--> <!--begin::App Content-->
         <div class="row">
             <div class="col-md-9">
-                <h2>Store</h2>
+                
             </div>
             <div class="col-md-3">
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
@@ -73,6 +88,17 @@ if (isset($_GET['edit'])) {
                     </div>
                     <div class="modal-body">
                         <form method="post">
+                        <div class="mt-2">
+  <form>
+  <select class="form-control" name="category" style="width: 100%; height: 100%;">
+  <option value="">Categories</option>
+                                        <?php $sql = $db->query("SELECT * FROM categories");
+                                        while ($row = mysqli_fetch_assoc($sql)) { ?>
+                                            <option value="<?= $row['sn'] ?>"><?= $row['title'] ?></option>
+                                        <?php } ?>
+    </select>
+ 
+</div>
                             <div class="form-group">
                                 <label for="">Item</label>
                                 <input type="text" class="form-control" name="item" placeholder="Item name">
@@ -133,10 +159,9 @@ if (isset($_GET['edit'])) {
                                     <label for="">Status</label>
                                     <select class="form-control" name="user">
                                         <option value="">All</option>
-
                                         <?php $sql = $db->query("SELECT * FROM product");
                                         while ($row = mysqli_fetch_assoc($sql)) { ?>
-                                            <option value="<?= $row['sn'] ?>"><?= $row[''] ?></option>
+                                            <option value="<?= $row['sn'] ?>"><?= $row['qty'] ?></option>
                                         <?php } ?>
                                     </select>
                                 </div>
@@ -160,6 +185,7 @@ if (isset($_GET['edit'])) {
                         <table class="table">
                             <tr>
                                 <th>SN</th>
+                                <th>Category</th>
                                 <th>Item</th>
                                 <th>Qty</th>
                                 <th>Cost Price</th>
@@ -175,6 +201,7 @@ if (isset($_GET['edit'])) {
                                 $e = $i++; ?>
                                 <tr>
                                     <td><?= $e ?></td>
+                                    <td><?= sqlx('categories', 'sn',  $row['category'], 'title') ?></td>
                                     <td><?= $row['item'] ?></td>
                                     <td><?= $row['qty'] ?></td>
                                     <td><?= number_format($row['cost']) ?></td>
@@ -200,6 +227,7 @@ if (isset($_GET['edit'])) {
         </div>
     </div>
 
+    <?php include('footer.php') ?>
 
     <script src="js/bootstrap.bundle.min.js"></script>
 
